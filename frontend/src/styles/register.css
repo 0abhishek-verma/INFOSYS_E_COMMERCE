@@ -128,6 +128,38 @@ body {
     0 10px 20px rgba(49,46,129,0.35);
 }
 
+/* Login Button */
+
+.login-btn{
+
+  padding:14px;
+
+  font-size:16px;
+
+  font-weight:bold;
+
+  border-radius:30px;
+
+  border:2px solid #312e81;
+
+  background:transparent;
+
+  color:#312e81;
+
+  cursor:pointer;
+
+  transition:0.3s;
+
+}
+
+
+.login-btn:hover{
+
+  background:#312e81;
+
+  color:white;
+
+}
 
 /* Mobile */
 @media(max-width:500px){

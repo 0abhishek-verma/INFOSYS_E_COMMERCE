@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import "../styles/register.css";
 
 function RegisterForm() {
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
       name:"",
       email:"",
@@ -162,8 +163,16 @@ function RegisterForm() {
     />
 
     <button type="submit">
-      Register
-    </button>
+  Register
+</button>
+
+<button
+ type="button"
+ className="login-btn"
+ onClick={() => navigate("/login")}
+>
+ Already have an account? Login
+</button>
 
   </form>
 

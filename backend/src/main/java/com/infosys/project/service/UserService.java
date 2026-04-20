@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.infosys.project.model.User;
 import com.infosys.project.repository.UserRepository;
+import com.infosys.project.security.JwtUtil;
 
 @Service
 public class UserService {
-
+         
+    @Autowired
+      private JwtUtil jwtUtil;
     @Autowired
     private UserRepository userRepository;
 
@@ -44,4 +47,31 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public String loginUser(
+    String email,
+    String password
+){
+
+   User user =
+   userRepository.findByEmail(email)
+   .orElseThrow(
+     () -> new RuntimeException(
+        "User not found"
+     )
+   );
+
+   if(
+    !passwordEncoder.matches(
+       password,
+       user.getPassword()
+    )
+   ){
+      throw new RuntimeException(
+         "Invalid password"
+      );
+   }
+
+   return jwtUtil.generateToken(email);
+
+        }
 }
