@@ -4,14 +4,25 @@ import { registerUser } from "../services/authService";
 import "../styles/register.css";
 
 function RegisterForm() {
+
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-      name:"",
-      email:"",
-      phone:"",
-      password:"",
-      confirmPassword:""
+    name:"",
+    email:"",
+    phone:"",
+    password:"",
+    confirmPassword:""
   });
+
+  // POPUP STATE
+  const [popup, setPopup] = useState({
+    show:false,
+    title:"",
+    message:"",
+    success:false
+  });
+
 
   const handleChange = (e) => {
 
@@ -23,36 +34,46 @@ function RegisterForm() {
   };
 
 
+  const showPopup = (title, message, success=false) => {
+    setPopup({
+      show:true,
+      title,
+      message,
+      success
+    });
+  };
+
+
   const validateForm = () => {
 
     if(!formData.name.trim()){
-      alert("Name is required");
+      showPopup("Validation Error","Name is required");
       return false;
     }
 
     if(!formData.email.includes("@")){
-      alert("Invalid email");
+      showPopup("Validation Error","Invalid email");
       return false;
     }
 
     if(formData.phone.length < 10){
-      alert("Invalid phone number");
+      showPopup("Validation Error","Invalid phone number");
       return false;
     }
 
-    // Same rule as backend
     const passwordRegex =
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if(!passwordRegex.test(formData.password)){
-      alert(
-       "Password must contain uppercase, lowercase, number and special character"
+      showPopup(
+        "Validation Error",
+        "Password must contain uppercase, lowercase, number and special character"
       );
       return false;
     }
 
     if(formData.password !== formData.confirmPassword){
-      alert("Passwords do not match");
+      showPopup("Validation Error","Passwords do not match");
       return false;
     }
 
@@ -70,7 +91,7 @@ function RegisterForm() {
 
     try {
 
-      // Don't send confirmPassword to backend
+      // BACKEND UNCHANGED
       const payload = {
         name: formData.name,
         email: formData.email,
@@ -80,7 +101,11 @@ function RegisterForm() {
 
       await registerUser(payload);
 
-      alert("Registration Successful");
+      showPopup(
+        "Registration Successful",
+        "Your account has been created successfully.",
+        true
+      );
 
       setFormData({
         name:"",
@@ -90,93 +115,159 @@ function RegisterForm() {
         confirmPassword:""
       });
 
-    } catch (error) {
+    }
 
-  console.error(error);
+    catch (error) {
 
-  if (error.response) {
+      console.error(error);
 
-    console.log(error.response.data);
+      if(error.response){
 
-    alert(
-      "Error: " +
-      JSON.stringify(error.response.data)
-    );
+        showPopup(
+          "Registration Failed",
+          JSON.stringify(error.response.data)
+        );
 
-  } else {
+      }
 
-    alert("Server connection error");
+      else{
 
-  }
+        showPopup(
+          "Connection Error",
+          "Server connection error"
+        );
 
-}
+      }
+
+    }
 
   };
 
 
+return (
 
- return (
+<div className="auth-container">
 
-  <form
-    className="register-form"
-    onSubmit={handleSubmit}
-  >
+  <div className="auth-left">
 
-    <h2>Create Account</h2>
-
-    <input
-      name="name"
-      placeholder="Full Name"
-      value={formData.name}
-      onChange={handleChange}
+    <img
+      src="/register-illustration.png"
+      alt="Register"
     />
 
-    <input
-      type="email"
-      name="email"
-      placeholder="Email"
-      value={formData.email}
-      onChange={handleChange}
-    />
+    <h1>Join Us Today</h1>
 
-    <input
-      name="phone"
-      placeholder="Phone Number"
-      value={formData.phone}
-      onChange={handleChange}
-    />
+    <p>
+      Create your account and start your journey.
+    </p>
 
-    <input
-      type="password"
-      name="password"
-      placeholder="Password"
-      value={formData.password}
-      onChange={handleChange}
-    />
+  </div>
 
-    <input
-      type="password"
-      name="confirmPassword"
-      placeholder="Confirm Password"
-      value={formData.confirmPassword}
-      onChange={handleChange}
-    />
 
-    <button type="submit">
-  Register
+<form
+className="register-form"
+onSubmit={handleSubmit}
+>
+
+<h2>Create Account</h2>
+
+<input
+name="name"
+placeholder="Full Name"
+value={formData.name}
+onChange={handleChange}
+/>
+
+<input
+type="email"
+name="email"
+placeholder="Email"
+value={formData.email}
+onChange={handleChange}
+/>
+
+<input
+name="phone"
+placeholder="Phone Number"
+value={formData.phone}
+onChange={handleChange}
+/>
+
+<input
+type="password"
+name="password"
+placeholder="Password"
+value={formData.password}
+onChange={handleChange}
+/>
+
+<input
+type="password"
+name="confirmPassword"
+placeholder="Confirm Password"
+value={formData.confirmPassword}
+onChange={handleChange}
+/>
+
+<button type="submit">
+Register
 </button>
 
 <button
- type="button"
- className="login-btn"
- onClick={() => navigate("/login")}
+type="button"
+className="login-btn"
+onClick={() => navigate("/login")}
 >
- Already have an account? Login
+Already have an account? Login
 </button>
 
-  </form>
+</form>
 
- );
+
+{/* POPUP MODAL */}
+
+{popup.show && (
+
+<div className="popup-overlay">
+
+<div className="popup-box">
+
+<h2>{popup.title}</h2>
+
+<p>{popup.message}</p>
+
+{popup.success && (
+
+<button
+className="popup-login"
+onClick={() => navigate("/login")}
+>
+Go To Login
+</button>
+
+)}
+
+<button
+className="popup-close"
+onClick={() =>
+setPopup({
+...popup,
+show:false
+})
+}
+>
+Close
+</button>
+
+</div>
+
+</div>
+
+)}
+
+</div>
+
+);
 
 }
 
