@@ -38,4 +38,9 @@ public String loginUser(
 
 }
 
+@GetMapping("/dashboard")
+public String dashboard() {
+    return "Protected API Accessed!";
+}
+
 }

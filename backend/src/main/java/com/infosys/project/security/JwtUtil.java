@@ -1,8 +1,10 @@
 package com.infosys.project.security;
 
-import java.security.Key;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -14,27 +16,34 @@ public class JwtUtil {
     private final String SECRET =
       "mysecretkeymysecretkeymysecretkey123";
 
-    private final Key key =
-      Keys.hmacShaKeyFor(
-         SECRET.getBytes()
-      );
+    private final SecretKey key =
+      Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(
-        String email
-    ){
+    public String generateToken(String email){
 
        return Jwts.builder()
             .subject(email)
             .issuedAt(new Date())
             .expiration(
-               new Date(
-                 System.currentTimeMillis()
-                 + 86400000
-               )
+               new Date(System.currentTimeMillis() + 86400000)
             )
             .signWith(key)
             .compact();
-
     }
 
+    public String extractEmail(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        return !getClaims(token).getExpiration().before(new Date());
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)   // ✅ now works
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 }

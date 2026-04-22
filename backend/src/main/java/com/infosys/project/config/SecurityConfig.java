@@ -8,8 +8,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.infosys.project.security.JwtAuthFilter;
+
 @Configuration
 public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -21,20 +29,24 @@ public class SecurityConfig {
             throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())   // VERY IMPORTANT
+            .csrf(csrf -> csrf.disable())
 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/users/register",
                     "/api/users/login"
-                ).permitAll()   // allow these APIs
-
+                ).permitAll()
                 .anyRequest().authenticated()
             )
 
-            .formLogin(form -> form.disable())   // disable login page
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
 
-            .httpBasic(basic -> basic.disable()); // disable basic auth
+            // 🔥 ADD THIS LINE (IMPORTANT)
+            .addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
