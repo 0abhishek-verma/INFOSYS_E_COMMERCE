@@ -15,7 +15,9 @@ function RegisterForm() {
     confirmPassword:""
   });
 
-  // POPUP STATE
+  const [errors, setErrors] = useState({});
+  const [passwordStrength, setPasswordStrength] = useState("");
+
   const [popup, setPopup] = useState({
     show:false,
     title:"",
@@ -23,75 +25,83 @@ function RegisterForm() {
     success:false
   });
 
+  const showPopup = (title, message, success=false) => {
+    setPopup({ show:true, title, message, success });
+  };
+
+  const checkPasswordStrength = (password) => {
+    let strength = "weak";
+
+    if (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password) &&
+      /[@$!%*?&]/.test(password)
+    ) {
+      strength = "strong";
+    } else if (password.length >= 6) {
+      strength = "medium";
+    }
+
+    setPasswordStrength(strength);
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
 
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
 
+    setErrors((prev) => ({
+      ...prev,
+      [name]: value ? "" : "error"
+    }));
+
+    if (name === "password") {
+      checkPasswordStrength(value);
+    }
   };
-
-
-  const showPopup = (title, message, success=false) => {
-    setPopup({
-      show:true,
-      title,
-      message,
-      success
-    });
-  };
-
 
   const validateForm = () => {
 
-    if(!formData.name.trim()){
-      showPopup("Validation Error","Name is required");
-      return false;
-    }
+    let newErrors = {};
 
-    if(!formData.email.includes("@")){
-      showPopup("Validation Error","Invalid email");
-      return false;
-    }
-
-    if(formData.phone.length < 10){
-      showPopup("Validation Error","Invalid phone number");
-      return false;
-    }
+    if(!formData.name.trim()) newErrors.name = "error";
+    if(!formData.email.includes("@")) newErrors.email = "error";
+    if(formData.phone.length < 10) newErrors.phone = "error";
 
     const passwordRegex =
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if(!passwordRegex.test(formData.password)){
-      showPopup(
-        "Validation Error",
-        "Password must contain uppercase, lowercase, number and special character"
-      );
-      return false;
+      newErrors.password = "error";
     }
 
     if(formData.password !== formData.confirmPassword){
-      showPopup("Validation Error","Passwords do not match");
+      newErrors.confirmPassword = "error";
+    }
+
+    setErrors(newErrors);
+
+    if(Object.keys(newErrors).length > 0){
+      showPopup("Validation Error","Please fix highlighted fields");
       return false;
     }
 
     return true;
   };
 
-
   const handleSubmit = async (e) => {
 
     e.preventDefault();
 
-    if(!validateForm()){
-      return;
-    }
+    if(!validateForm()) return;
 
     try {
 
-      // BACKEND UNCHANGED
       const payload = {
         name: formData.name,
         email: formData.email,
@@ -103,7 +113,7 @@ function RegisterForm() {
 
       showPopup(
         "Registration Successful",
-        "Your account has been created successfully.",
+        "Account created successfully",
         true
       );
 
@@ -115,160 +125,108 @@ function RegisterForm() {
         confirmPassword:""
       });
 
-    }
-
-    catch (error) {
-
-      console.error(error);
+    } catch (error) {
 
       if(error.response){
-
-        showPopup(
-          "Registration Failed",
-          JSON.stringify(error.response.data)
-        );
-
-      }
-
-      else{
-
-        showPopup(
-          "Connection Error",
-          "Server connection error"
-        );
-
+        showPopup("Error", JSON.stringify(error.response.data));
+      } else {
+        showPopup("Error","Server connection failed");
       }
 
     }
-
   };
 
+  return (
+    <div className="auth-container">
 
-return (
+      <form className="register-form" onSubmit={handleSubmit}>
 
-<div className="auth-container">
+        <h2>Create Account</h2>
 
-  <div className="auth-left">
+        <input
+          name="name"
+          placeholder="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+          className={`input ${errors.name ? "error" : ""}`}
+        />
 
-    <img
-      src="/register-illustration.png"
-      alt="Register"
-    />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className={`input ${errors.email ? "error" : ""}`}
+        />
 
-    <h1>Join Us Today</h1>
+        <input
+          name="phone"
+          placeholder="Phone Number"
+          value={formData.phone}
+          onChange={handleChange}
+          className={`input ${errors.phone ? "error" : ""}`}
+        />
 
-    <p>
-      Create your account and start your journey.
-    </p>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className={`input ${errors.password ? "error" : ""} ${passwordStrength}`}
+        />
 
-  </div>
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          className={`input ${errors.confirmPassword ? "error" : ""}`}
+        />
 
+        <button type="submit">Register</button>
 
-<form
-className="register-form"
-onSubmit={handleSubmit}
->
+        <button
+          type="button"
+          className="login-btn"
+          onClick={() => navigate("/login")}
+        >
+          Already have an account? Login
+        </button>
 
-<h2>Create Account</h2>
+      </form>
 
-<input
-name="name"
-placeholder="Full Name"
-value={formData.name}
-onChange={handleChange}
-/>
+      {popup.show && (
+        <div className="popup-overlay">
+          <div className="popup-box">
 
-<input
-type="email"
-name="email"
-placeholder="Email"
-value={formData.email}
-onChange={handleChange}
-/>
+            <h2>{popup.title}</h2>
+            <p>{popup.message}</p>
 
-<input
-name="phone"
-placeholder="Phone Number"
-value={formData.phone}
-onChange={handleChange}
-/>
+            {popup.success && (
+              <button
+                className="popup-login"
+                onClick={() => navigate("/login")}
+              >
+                Go To Login
+              </button>
+            )}
 
-<input
-type="password"
-name="password"
-placeholder="Password"
-value={formData.password}
-onChange={handleChange}
-/>
+            <button
+              className="popup-close"
+              onClick={() => setPopup({...popup, show:false})}
+            >
+              Close
+            </button>
 
-<input
-type="password"
-name="confirmPassword"
-placeholder="Confirm Password"
-value={formData.confirmPassword}
-onChange={handleChange}
-/>
+          </div>
+        </div>
+      )}
 
-<button type="submit">
-Register
-</button>
-
-<button
-type="button"
-className="login-btn"
-onClick={() => navigate("/login")}
->
-Already have an account? Login
-</button>
-
-</form>
-
-
-{/* POPUP MODAL */}
-
-{popup.show && (
-
-<div className="popup-overlay">
-
-<div className="popup-box">
-
-<h2>{popup.title}</h2>
-
-<p>{popup.message}</p>
-
-{popup.success && (
-
-<button
-className="popup-login"
-onClick={() => navigate("/login")}
->
-Go To Login
-</button>
-
-)}
-
-<button
-className="popup-close"
-onClick={() =>
-setPopup({
-...popup,
-show:false
-})
-}
->
-Close
-</button>
-
-</div>
-
-</div>
-
-)}
-
-</div>
-
-);
-
+    </div>
+  );
 }
 
 export default RegisterForm;

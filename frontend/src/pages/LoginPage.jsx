@@ -1,172 +1,139 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 import "../styles/login.css";
 
 function LoginPage() {
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [formData, setFormData] = useState({
-email:"",
-password:""
-});
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
 
-const [popup, setPopup] = useState({
-show:false,
-message:"",
-success:false
-});
+  const [popup, setPopup] = useState({
+    show: false,
+    message: "",
+    success: false
+  });
 
+  const showPopup = (message, success = false) => {
 
-const showPopup = (message, success=false) => {
+    setPopup({
+      show: true,
+      message,
+      success
+    });
 
-setPopup({
-show:true,
-message,
-success
-});
+    setTimeout(() => {
 
-// Auto close after 1 second
-setTimeout(() => {
+      setPopup({
+        show: false,
+        message: "",
+        success: false
+      });
 
-setPopup({
-show:false,
-message:"",
-success:false
-});
+      if (success) {
+        navigate("/dashboard");
+      }
 
-if(success){
-navigate("/dashboard");
-}
+    }, 1200);
+  };
 
-},1000);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
-};
+  const handleSubmit = async (e) => {
 
+    e.preventDefault();
 
-const handleChange = (e) => {
+    try {
 
-setFormData({
-...formData,
-[e.target.name]:e.target.value
-});
+      const response = await loginUser(formData);
 
-};
+      const token = response.data;
 
+      localStorage.setItem("token", token);
 
-const handleSubmit = async(e)=>{
+      // 🔥 decode JWT
+      const decoded = jwtDecode(token);
 
-e.preventDefault();
+      localStorage.setItem("user", JSON.stringify({
+        email: decoded.sub,
+        name: decoded.name || decoded.sub
+      }));
 
-try{
+      showPopup("Login Successful", true);
 
-const response =
-await loginUser(formData);
+    } catch (error) {
 
-localStorage.setItem(
-"token",
-response.data
-);
+      showPopup("Invalid Credentials");
 
-// KEEP POPUP
-showPopup(
-"Login Successful",
-true
-);
+    }
+  };
 
-}
+  return (
 
-catch(error){
+    <div className="login-container">
 
-// KEEP POPUP
-showPopup(
-"Invalid Credentials"
-);
+      {/* LEFT SIDE */}
+      <div className="login-left">
+        <h1>Welcome Back</h1>
+        <p>Login to continue managing your account.</p>
+      </div>
 
-}
+      {/* FORM */}
+      <form className="login-form" onSubmit={handleSubmit}>
 
-};
+        <h2>Login</h2>
 
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+        />
 
-return (
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+        />
 
-<div className="login-container">
+        <button type="submit">Login</button>
 
-{/* LEFT IMAGE SIDE */}
-<div className="login-left">
+        <button
+          type="button"
+          className="login-btn"
+          onClick={() => navigate("/")}
+        >
+          Don't have an account? Sign Up
+        </button>
 
-<h1>Welcome Back</h1>
+      </form>
 
-<p>
-Login to continue managing your account.
-</p>
+      {/* POPUP */}
+      {popup.show && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>{popup.success ? "Success" : "Error"}</h2>
+            <p>{popup.message}</p>
+          </div>
+        </div>
+      )}
 
-</div>
+    </div>
 
-
-{/* RIGHT FORM */}
-<form
-className="login-form"
-onSubmit={handleSubmit}
->
-
-<h2>Login</h2>
-
-<input
-type="email"
-name="email"
-placeholder="Email"
-value={formData.email}
-onChange={handleChange}
-/>
-
-<input
-type="password"
-name="password"
-placeholder="Password"
-value={formData.password}
-onChange={handleChange}
-/>
-
-<button type="submit">
-Login
-</button>
-
-<button
-type="button"
-className="login-btn"
-onClick={() => navigate("/")}
->
-Don't have an account? Sign Up
-</button>
-
-</form>
-
-
-{/* POPUP (UNCHANGED) */}
-{popup.show && (
-
-<div className="popup-overlay">
-
-<div className="popup-box">
-
-<h2>
-{popup.success ? "Success" : "Error"}
-</h2>
-
-<p>{popup.message}</p>
-
-</div>
-
-</div>
-
-)}
-
-</div>
-
-);
-
+  );
 }
 
 export default LoginPage;

@@ -71,7 +71,8 @@ public class UserService {
       );
    }
 
-   return jwtUtil.generateToken(email);
+   return jwtUtil.generateToken( user.getEmail(),
+       user.getName());
 
         }
 }
