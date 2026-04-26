@@ -7,6 +7,7 @@ import {
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
 
@@ -14,7 +15,7 @@ function App() {
 
    <BrowserRouter>
 
-      <Routes>
+      <Routes element={<ProtectedRoute />}>
 
          <Route
            path="/"
@@ -26,9 +27,8 @@ function App() {
            element={<LoginPage />}
          />
          
-      <Route
-        path="/dashboard"
-        element={<DashboardPage />}
+        <Route
+            path="/dashboard" element={<DashboardPage />}
         />
 
       </Routes>
