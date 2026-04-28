@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.infosys.project.model.User;
 import com.infosys.project.service.UserService;
 import com.infosys.project.dto.LoginRequest;
-import jakarta.validation.Valid;
+import com.infosys.project.dto.RegisterRequest;
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,31 +16,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @PostMapping("/register")
-    public User registerUser(
-            @Valid @RequestBody User user
-    ) {
-
-        return userService.registerUser(user);
-
+    public User registerUser(@RequestBody RegisterRequest request) {
+        return userService.registerUser(request);
     }
 
     @PostMapping("/login")
-public String loginUser(
- @RequestBody LoginRequest request
-){
+    public String loginUser(@RequestBody LoginRequest request) {
+        return userService.loginUser(
+                request.getEmail(),
+                request.getPassword()
+        );
+    }
 
-   return userService.loginUser(
-      request.getEmail(),
-      request.getPassword()
-   );
-
-}
-
-@GetMapping("/dashboard")
-public String dashboard() {
-    return "Protected API Accessed!";
-}
-
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "Protected API Accessed!";
+    }
 }

@@ -37,13 +37,19 @@ public class SecurityConfig {
                     "/api/users/register",
                     "/api/users/login"
                 ).permitAll()
+
+                // 🔥 ADMIN ONLY
+                .requestMatchers("/api/products/add").hasRole("ADMIN")
+
+                // 🔐 Authenticated users
+                .requestMatchers("/api/products/**").authenticated()
+
                 .anyRequest().authenticated()
             )
 
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
-            // 🔥 ADD THIS LINE (IMPORTANT)
             .addFilterBefore(
                 jwtAuthFilter,
                 UsernamePasswordAuthenticationFilter.class

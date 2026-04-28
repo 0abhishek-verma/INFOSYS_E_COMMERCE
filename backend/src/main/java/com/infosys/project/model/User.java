@@ -13,44 +13,36 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
-
     @NotBlank(message = "Name is required")
     private String name;
-
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     @Column(unique = true)
     private String email;
 
-
     @Pattern(
-      regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$",
-      message = "Password must have 8 chars, uppercase, lowercase, number and special character"
+        regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$",
+        message = "Password must have 8 chars, uppercase, lowercase, number and special character"
     )
     private String password;
-
 
     @NotBlank(message = "Phone is required")
     private String phone;
 
+    @Column(nullable = false)
+    private String role = "USER";
 
     public User() {
     }
 
-
-    public User(
-        String name,
-        String email,
-        String password,
-        String phone
-    ) {
+    public User(String name, String email, String password, String phone, String role) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
+        this.role = role;
     }
-
 
     public int getUserId() {
         return userId;
@@ -60,7 +52,6 @@ public class User {
         this.userId = userId;
     }
 
-
     public String getName() {
         return name;
     }
@@ -68,7 +59,6 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public String getEmail() {
         return email;
@@ -78,7 +68,6 @@ public class User {
         this.email = email;
     }
 
-
     public String getPassword() {
         return password;
     }
@@ -86,7 +75,6 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
 
     public String getPhone() {
         return phone;
@@ -96,4 +84,11 @@ public class User {
         this.phone = phone;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

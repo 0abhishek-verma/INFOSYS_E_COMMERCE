@@ -1,43 +1,53 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import ProductDetails from "./pages/ProductDetails";
+import Register from "./pages/Register";
 import {
- BrowserRouter,
- Routes,
- Route
-} from "react-router-dom";
+  clearAuth,
+  getHomeRouteForRole,
+  getStoredUser,
+  getToken,
+  isTokenValid,
+} from "./services/api";
 
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import ProtectedRoute from "./ProtectedRoute";
+function HomeRedirect() {
+  const token = getToken();
+  const user = getStoredUser();
+
+  if (token && isTokenValid(token) && user?.role) {
+    return <Navigate to={getHomeRouteForRole(user.role)} replace />;
+  }
+
+  clearAuth();
+  return <Navigate to="/" replace />;
+}
 
 function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
- return (
+        <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
 
-   <BrowserRouter>
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
 
-      <Routes element={<ProtectedRoute />}>
+        <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
+          <Route path="/products/:productId" element={<ProductDetails />} />
+        </Route>
 
-         <Route
-           path="/"
-           element={<RegisterPage />}
-         />
-
-         <Route
-           path="/login"
-           element={<LoginPage />}
-         />
-         
-        <Route
-            path="/dashboard" element={<DashboardPage />}
-        />
-
+        <Route path="*" element={<HomeRedirect />} />
       </Routes>
-
-
-   </BrowserRouter>
-
- );
-
+    </BrowserRouter>
+  );
 }
 
 export default App;
