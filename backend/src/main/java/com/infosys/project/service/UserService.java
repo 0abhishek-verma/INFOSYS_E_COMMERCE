@@ -3,7 +3,6 @@ package com.infosys.project.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +23,7 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${admin.secret.key}")
-    private String adminSecretKey;
-
+    // ✅ REGISTER USER (ONLY USER ROLE)
     public User registerUser(RegisterRequest request) {
 
         Optional<User> existingUser =
@@ -46,17 +43,13 @@ public class UserService {
                 passwordEncoder.encode(request.getPassword())
         );
 
-        if (request.getAdminKey() != null &&
-                request.getAdminKey().equals(adminSecretKey)) {
-
-            user.setRole("ADMIN");
-        } else {
-            user.setRole("USER");
-        }
+        // 🔥 ALWAYS USER (SECURE)
+        user.setRole("USER");
 
         return userRepository.save(user);
     }
 
+    // ✅ LOGIN
     public String loginUser(String email, String password) {
 
         User user = userRepository.findByEmail(email)

@@ -1,16 +1,14 @@
 package com.infosys.project.controller;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.infosys.project.model.Product;
 import com.infosys.project.service.ProductService;
-
-import jakarta.validation.Valid;
-import java.math.BigDecimal;
-
 
 @RestController
 @RequestMapping("/api/products")
@@ -20,31 +18,38 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    // ✅ ADD PRODUCT (ADMIN ONLY)
+    // 🔥 ADMIN ONLY (already secured in SecurityConfig)
     @PostMapping("/add")
-    public Product addProduct(@Valid @RequestBody Product product) {
-        return productService.addProduct(product);
+    public Product addProduct(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("stockQuantity") Integer stockQuantity,
+            @RequestParam("category") String category,
+            @RequestParam("image") MultipartFile image
+    ) {
+        return productService.addProduct(
+                name, description, price, stockQuantity, category, image
+        );
     }
 
-    // ✅ GET ALL PRODUCTS (AUTH REQUIRED)
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    // 🔥 GET PRODUCT BY ID
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
     @GetMapping("/search")
-public List<Product> searchProducts(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) String category,
-        @RequestParam(required = false) BigDecimal minPrice,
-        @RequestParam(required = false) BigDecimal maxPrice
-) {
-    return productService.searchProducts(name, category, minPrice, maxPrice);
-}
+    public List<Product> searchProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice
+    ) {
+        return productService.searchProducts(name, category, minPrice, maxPrice);
+    }
 }
