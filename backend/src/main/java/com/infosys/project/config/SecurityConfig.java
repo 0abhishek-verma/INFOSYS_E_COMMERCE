@@ -43,6 +43,7 @@ public class SecurityConfig {
 
                 // 🔐 Authenticated users
                 .requestMatchers("/api/products/**").authenticated()
+                .requestMatchers("/api/cart/**").authenticated()
 
                 .anyRequest().authenticated()
             )
