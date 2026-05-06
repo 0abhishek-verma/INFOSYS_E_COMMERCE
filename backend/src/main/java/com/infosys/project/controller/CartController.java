@@ -53,4 +53,27 @@ public class CartController {
         token = token.substring(7);
         return jwtUtil.extractEmail(token);
     }
+
+
+    // 🔄 PUT → set exact quantity
+    @PutMapping("/update")
+    public CartItem updateCartPut(
+            @RequestParam Long productId,
+            @RequestParam Integer quantity,
+            @RequestHeader("Authorization") String token
+    ) {
+        String email = extractEmail(token);
+        return cartService.updateCartPut(email, productId, quantity);
+    }
+
+    // 🔄 PATCH → increase/decrease quantity
+    @PatchMapping("/update")
+    public CartItem updateCartPatch(
+            @RequestParam Long productId,
+            @RequestParam Integer quantityChange,
+            @RequestHeader("Authorization") String token
+    ) {
+        String email = extractEmail(token);
+        return cartService.updateCartPatch(email, productId, quantityChange);
+    }
 }

@@ -57,4 +57,40 @@ public class CartService {
     public void removeItem(Long id) {
         cartItemRepository.deleteById(id);
     }
+
+    // 🔄 PUT → Set exact quantity
+    public CartItem updateCartPut(String userEmail, Long productId, Integer quantity) {
+
+        CartItem item = cartItemRepository
+                .findByUserEmailAndProductId(userEmail, productId)
+                .orElseThrow(() -> new RuntimeException("Item not found in cart"));
+
+        if (quantity <= 0) {
+            cartItemRepository.delete(item);
+            return null;
+        }
+
+        item.setQuantity(quantity);
+
+        return cartItemRepository.save(item);
+    }
+
+    // 🔄 PATCH → Increase / decrease quantity
+    public CartItem updateCartPatch(String userEmail, Long productId, Integer quantityChange) {
+
+        CartItem item = cartItemRepository
+                .findByUserEmailAndProductId(userEmail, productId)
+                .orElseThrow(() -> new RuntimeException("Item not found in cart"));
+
+        int newQuantity = item.getQuantity() + quantityChange;
+
+        if (newQuantity <= 0) {
+            cartItemRepository.delete(item);
+            return null;
+        }
+
+        item.setQuantity(newQuantity);
+
+        return cartItemRepository.save(item);
+    }
 }

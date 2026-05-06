@@ -1,33 +1,5 @@
-function formatPrice(value) {
-  const numericValue = Number(value);
-
-  if (Number.isNaN(numericValue)) {
-    return "0.00";
-  }
-
-  return new Intl.NumberFormat("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numericValue);
-}
-
-function buildFallbackImage(productName) {
-  const label = productName ? productName.slice(0, 20) : "Product";
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
-      <rect width="640" height="420" fill="#ecfdf5" />
-      <rect x="56" y="56" width="528" height="308" rx="24" fill="#d1fae5" />
-      <text x="320" y="198" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#065f46">
-        ${label}
-      </text>
-      <text x="320" y="238" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#047857">
-        Image unavailable
-      </text>
-    </svg>
-  `;
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
+import { useCart } from "../context/useCart";
+import { buildFallbackImage, formatPrice } from "../utils/catalog";
 
 function ProductCard({
   productId,
@@ -38,76 +10,99 @@ function ProductCard({
   description,
   stockQuantity,
   onViewDetails,
-  ctaLabel = "View Details",
+  product,
+  ctaLabel = "View",
 }) {
+  const { addToCart } = useCart();
   const displayImage = image?.trim() ? image : buildFallbackImage(name);
+  const isOutOfStock = Number(stockQuantity) <= 0;
+  const rating = (4 + (Number(productId) % 8) / 10).toFixed(1);
+  const mrp = Math.round(Number(price || 0) * 1.18);
+
+  const handleAddToCart = () => {
+    addToCart(
+      product || {
+        id: productId,
+        name,
+        price,
+        imageUrl: image,
+        category,
+        description,
+        stockQuantity,
+      },
+    );
+  };
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
-      <div className="aspect-[4/3] overflow-hidden bg-zinc-100">
+    <article className="group flex h-full flex-col overflow-hidden rounded bg-white shadow-sm ring-1 ring-zinc-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <button
+        type="button"
+        onClick={onViewDetails}
+        className="aspect-[4/3] overflow-hidden bg-slate-100 p-4"
+      >
         <img
           src={displayImage}
           alt={name}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
           onError={(event) => {
             event.currentTarget.onerror = null;
             event.currentTarget.src = buildFallbackImage(name);
           }}
         />
-      </div>
+      </button>
 
-      <div className="flex flex-1 flex-col gap-4 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-              {category || "Uncategorized"}
-            </p>
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-950">
-              {name}
-            </h2>
-          </div>
-          <div className="shrink-0 rounded-md bg-amber-50 px-3 py-2 text-right">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-amber-700">
-              Price
-            </p>
-            <p className="text-base font-semibold text-amber-900">{formatPrice(price)}</p>
-          </div>
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="min-h-[86px]">
+          <p className="text-xs font-semibold uppercase text-blue-600">
+            {category || "Top deals"}
+          </p>
+          <button
+            type="button"
+            onClick={onViewDetails}
+            className="mt-1 line-clamp-2 text-left text-base font-semibold leading-snug text-zinc-950 hover:text-blue-600"
+          >
+            {name}
+          </button>
+          <p className="mt-2 line-clamp-2 text-sm text-zinc-500">
+            {description?.trim() || "Trusted quality, quick delivery, and easy checkout."}
+          </p>
         </div>
 
-        <div
-          className="text-sm text-zinc-600"
-          style={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: 3,
-            overflow: "hidden",
-          }}
-        >
-          {description?.trim() || "No description available for this product yet."}
+        <div className="flex items-center gap-2">
+          <span className="rounded bg-emerald-600 px-2 py-0.5 text-xs font-bold text-white">
+            {rating}
+          </span>
+          <span className="text-xs font-medium text-zinc-500">
+            {Number(stockQuantity) > 0 ? `${stockQuantity} in stock` : "Unavailable"}
+          </span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-zinc-100 pt-4">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Product ID
-            </p>
-            <p className="text-sm font-semibold text-zinc-800">{productId}</p>
+        <div className="mt-auto">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <p className="text-xl font-bold text-zinc-950">Rs. {formatPrice(price)}</p>
+            <p className="text-sm text-zinc-400 line-through">Rs. {formatPrice(mrp)}</p>
+            <p className="text-sm font-semibold text-emerald-600">18% off</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-              Stock
-            </p>
-            <p className="text-sm font-semibold text-zinc-800">{stockQuantity ?? 0}</p>
-          </div>
+          <p className="mt-1 text-xs font-medium text-zinc-500">Free delivery by tomorrow</p>
         </div>
 
-        <button
-          type="button"
-          onClick={onViewDetails}
-          className="rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800"
-        >
-          {ctaLabel}
-        </button>
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            type="button"
+            onClick={onViewDetails}
+            className="rounded-sm border border-zinc-300 bg-white px-3 py-2 text-sm font-bold text-zinc-800 transition hover:border-blue-400 hover:text-blue-600"
+          >
+            {ctaLabel}
+          </button>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            className="rounded-sm bg-yellow-400 px-3 py-2 text-sm font-bold text-zinc-950 transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-500"
+          >
+            Add
+          </button>
+        </div>
       </div>
     </article>
   );

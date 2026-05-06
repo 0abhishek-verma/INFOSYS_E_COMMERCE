@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { CartProvider } from "./context/CartContext";
 import AdminDashboard from "./pages/AdminDashboard";
+import Cart from "./pages/Cart";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ProductDetails from "./pages/ProductDetails";
@@ -27,26 +29,29 @@ function HomeRedirect() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-        <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
+          <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/cart" element={<Cart />} />
+          </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
-          <Route path="/products/:productId" element={<ProductDetails />} />
-        </Route>
+          <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
+            <Route path="/products/:productId" element={<ProductDetails />} />
+          </Route>
 
-        <Route path="*" element={<HomeRedirect />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<HomeRedirect />} />
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

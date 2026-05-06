@@ -56,7 +56,8 @@ export function getToken() {
 }
 
 export function clearAuth() {
-  localStorage.clear();
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 }
 
 export function storeAuthToken(token) {
