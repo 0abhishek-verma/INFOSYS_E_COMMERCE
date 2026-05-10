@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +36,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/users/register",
+                    "/api/users/verify-otp",
                     "/api/users/login"
                 ).permitAll()
 
                 // 🔥 ADMIN ONLY
                 .requestMatchers("/api/products/add").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
 
                 // 🔐 Authenticated users
                 .requestMatchers("/api/products/**").authenticated()
                 .requestMatchers("/api/cart/**").authenticated()
+                .requestMatchers("/api/orders/**").authenticated()
 
                 .anyRequest().authenticated()
             )

@@ -1,10 +1,13 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { CartProvider } from "./context/CartContext";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminAddProduct from "./pages/AdminAddProduct";
+import AdminProducts from "./pages/AdminProducts";
 import Cart from "./pages/Cart";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import MyOrders from "./pages/MyOrders";
+import PlaceOrder from "./pages/PlaceOrder";
 import ProductDetails from "./pages/ProductDetails";
 import Register from "./pages/Register";
 import {
@@ -38,10 +41,14 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["USER"]} />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/place-order" element={<PlaceOrder />} />
+            <Route path="/orders" element={<MyOrders />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/add-product" element={<AdminAddProduct />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>

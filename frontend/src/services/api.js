@@ -13,7 +13,12 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    if (isTokenValid(token)) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      clearAuth();
+      delete config.headers.Authorization;
+    }
   }
 
   return config;
@@ -111,7 +116,7 @@ export function isTokenValid(token = getToken()) {
 }
 
 export function getHomeRouteForRole(role) {
-  return role === "ADMIN" ? "/admin" : "/dashboard";
+  return role === "ADMIN" ? "/admin/products" : "/dashboard";
 }
 
 export function getErrorMessage(
@@ -139,6 +144,10 @@ export function getErrorMessage(
 
 export function registerUser(payload) {
   return api.post("/api/users/register", payload);
+}
+
+export function verifyRegistrationOtp(payload) {
+  return api.post("/api/users/verify-otp", payload);
 }
 
 export function loginUser(payload) {
@@ -177,4 +186,42 @@ export function getProductById(productId) {
 
 export function addProduct(payload) {
   return api.post("/api/products/add", payload);
+}
+
+export function removeProduct(productId) {
+  return api.delete(`/api/products/${productId}`);
+}
+
+export function getCart() {
+  return api.get("/api/cart");
+}
+
+export function addCartItem(productId, quantity = 1) {
+  return api.post("/api/cart/add", null, {
+    params: {
+      productId,
+      quantity,
+    },
+  });
+}
+
+export function updateCartItem(productId, quantity) {
+  return api.put("/api/cart/update", null, {
+    params: {
+      productId,
+      quantity,
+    },
+  });
+}
+
+export function removeCartItem(cartItemId) {
+  return api.delete(`/api/cart/${cartItemId}`);
+}
+
+export function placeOrder() {
+  return api.post("/api/orders/place");
+}
+
+export function getMyOrders() {
+  return api.get("/api/orders/my");
 }

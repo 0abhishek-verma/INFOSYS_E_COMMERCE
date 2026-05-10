@@ -33,6 +33,12 @@ public class ProductController {
         );
     }
 
+    @DeleteMapping("/{id}")
+    public String removeProduct(@PathVariable Long id) {
+        productService.removeProduct(id);
+        return "Product removed successfully";
+    }
+
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();

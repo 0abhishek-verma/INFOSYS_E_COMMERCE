@@ -57,6 +57,12 @@ public class ProductService {
                 );
     }
 
+    public void removeProduct(Long id) {
+        Product product = getProductById(id);
+        product.setIsActive(false);
+        productRepository.save(product);
+    }
+
     public List<Product> searchProducts(
             String name,
             String category,

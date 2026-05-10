@@ -76,7 +76,7 @@ function ProductDetails() {
         <button
           type="button"
           onClick={() => navigate(getHomeRouteForRole(user?.role))}
-          className="mb-5 rounded-sm bg-white px-4 py-2 text-sm font-bold text-blue-600 shadow-sm ring-1 ring-zinc-200 transition hover:bg-blue-50"
+          className="mb-5 rounded-md bg-white px-4 py-2 text-sm font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
         >
           Back to shopping
         </button>
@@ -112,7 +112,7 @@ function ProductDetails() {
                     type="button"
                     onClick={handleAddToCart}
                     disabled={Number(product.stockQuantity) <= 0}
-                    className="rounded-sm bg-yellow-400 px-5 py-4 text-sm font-black text-zinc-950 transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-500"
+                    className="rounded-md bg-amber-400 px-5 py-4 text-sm font-black text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
                   >
                     Add to cart
                   </button>
@@ -120,7 +120,7 @@ function ProductDetails() {
                     type="button"
                     onClick={handleBuyNow}
                     disabled={Number(product.stockQuantity) <= 0}
-                    className="rounded-sm bg-orange-500 px-5 py-4 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-300"
+                    className="rounded-md bg-sky-600 px-5 py-4 text-sm font-black text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
                     Buy now
                   </button>
@@ -188,7 +188,7 @@ function ProductDetails() {
               {user?.role === "USER" ? (
                 <Link
                   to="/cart"
-                  className="mt-4 inline-flex rounded-sm border border-blue-200 px-4 py-3 text-sm font-bold text-blue-600 transition hover:bg-blue-50"
+                  className="mt-4 inline-flex rounded-md border border-slate-300 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
                 >
                   Open cart
                 </Link>

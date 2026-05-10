@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.infosys.project.model.User;
 import com.infosys.project.service.UserService;
 import com.infosys.project.dto.LoginRequest;
+import com.infosys.project.dto.OtpVerificationRequest;
 import com.infosys.project.dto.RegisterRequest;
 
 @RestController
@@ -17,8 +18,16 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public User registerUser(@RequestBody RegisterRequest request) {
-        return userService.registerUser(request);
+    public String registerUser(@RequestBody RegisterRequest request) {
+        return userService.initiateRegistration(request);
+    }
+
+    @PostMapping("/verify-otp")
+    public User verifyRegistrationOtp(@RequestBody OtpVerificationRequest request) {
+        return userService.verifyRegistrationOtp(
+                request.getEmail(),
+                request.getOtp()
+        );
     }
 
     @PostMapping("/login")

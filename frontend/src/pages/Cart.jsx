@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { useCart } from "../context/useCart";
 import { getStoredUser } from "../services/api";
@@ -13,10 +14,17 @@ function Cart() {
     discount,
     deliveryFee,
     total,
+    isLoading,
+    errorMessage,
+    refreshCart,
     updateQuantity,
     removeFromCart,
     clearCart,
   } = useCart();
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -31,21 +39,29 @@ function Cart() {
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-5 py-4 shadow-sm ring-1 ring-zinc-200">
             <div>
               <h1 className="text-xl font-black text-zinc-950">Shopping Cart</h1>
-              <p className="text-sm font-medium text-zinc-500">{itemCount} items selected</p>
+              <p className="text-sm font-medium text-zinc-500">
+                {isLoading ? "Loading cart..." : `${itemCount} items selected`}
+              </p>
             </div>
             <Link
               to="/dashboard"
-              className="rounded-sm border border-blue-200 px-4 py-2 text-sm font-bold text-blue-600 transition hover:bg-blue-50"
+              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-slate-50"
             >
               Continue shopping
             </Link>
           </div>
 
+          {errorMessage ? (
+            <div className="border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+              {errorMessage}
+            </div>
+          ) : null}
+
           {items.length > 0 ? (
             items.map((item) => (
               <article
                 key={item.id}
-                className="grid gap-4 bg-white p-4 shadow-sm ring-1 ring-zinc-200 sm:grid-cols-[150px_1fr]"
+                className="grid gap-4 bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-[150px_1fr]"
               >
                 <Link to={`/products/${item.id}`} className="aspect-square bg-slate-100 p-3">
                   <img
@@ -64,7 +80,7 @@ function Cart() {
                     <div>
                       <Link
                         to={`/products/${item.id}`}
-                        className="text-lg font-black text-zinc-950 hover:text-blue-600"
+                        className="text-lg font-black text-slate-950 hover:text-sky-700"
                       >
                         {item.name}
                       </Link>
@@ -91,7 +107,7 @@ function Cart() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="h-10 w-10 text-lg font-black text-zinc-700 transition hover:bg-slate-100"
+                        className="h-10 w-10 text-lg font-black text-slate-700 transition hover:bg-slate-100"
                       >
                         -
                       </button>
@@ -106,7 +122,7 @@ function Cart() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="h-10 w-10 text-lg font-black text-zinc-700 transition hover:bg-slate-100"
+                        className="h-10 w-10 text-lg font-black text-slate-700 transition hover:bg-slate-100"
                       >
                         +
                       </button>
@@ -115,7 +131,7 @@ function Cart() {
                     <button
                       type="button"
                       onClick={() => removeFromCart(item.id)}
-                      className="rounded-sm px-3 py-2 text-sm font-black text-zinc-700 transition hover:bg-rose-50 hover:text-rose-600"
+                      className="rounded-md px-3 py-2 text-sm font-black text-slate-700 transition hover:bg-rose-50 hover:text-rose-600"
                     >
                       Remove
                     </button>
@@ -132,7 +148,7 @@ function Cart() {
               </p>
               <Link
                 to="/dashboard"
-                className="mt-6 inline-flex rounded-sm bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+              className="mt-6 inline-flex rounded-md bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-800"
               >
                 Start shopping
               </Link>
@@ -170,18 +186,27 @@ function Cart() {
           </div>
 
           <div className="grid gap-3 border-t border-zinc-200 p-5">
-            <button
-              type="button"
-              disabled={items.length === 0}
-              className="rounded-sm bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-300"
-            >
-              Place order
-            </button>
+            {items.length > 0 ? (
+              <Link
+                to="/place-order"
+                className="rounded-md bg-sky-600 px-5 py-3 text-center text-sm font-black text-white transition hover:bg-sky-700"
+              >
+                Place order
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="rounded-md bg-slate-300 px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed"
+              >
+                Place order
+              </button>
+            )}
             <button
               type="button"
               onClick={clearCart}
               disabled={items.length === 0}
-              className="rounded-sm border border-zinc-300 px-5 py-3 text-sm font-black text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-400"
+              className="rounded-md border border-slate-300 px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
             >
               Clear cart
             </button>

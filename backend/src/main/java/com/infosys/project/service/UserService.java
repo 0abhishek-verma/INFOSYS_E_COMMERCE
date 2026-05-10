@@ -1,6 +1,10 @@
 package com.infosys.project.service;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +18,11 @@ import com.infosys.project.security.JwtUtil;
 @Service
 public class UserService {
 
+    private static final long OTP_EXPIRY_SECONDS = 600;
+
+    private final SecureRandom secureRandom = new SecureRandom();
+    private final Map<String, PendingRegistration> pendingRegistrations = new ConcurrentHashMap<>();
+
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -23,36 +32,67 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    // ✅ REGISTER USER (ONLY USER ROLE)
-    public User registerUser(RegisterRequest request) {
+    @Autowired
+    private EmailOtpService emailOtpService;
+
+    public String initiateRegistration(RegisterRequest request) {
+
+        String email = normalizeEmail(request.getEmail());
 
         Optional<User> existingUser =
-                userRepository.findByEmail(request.getEmail());
+                userRepository.findByEmail(email);
 
         if (existingUser.isPresent()) {
             throw new RuntimeException("Email already registered");
         }
 
-        User user = new User();
+        String otp = generateOtp();
 
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
+        emailOtpService.sendRegistrationOtp(email, otp);
 
-        user.setPassword(
-                passwordEncoder.encode(request.getPassword())
+        pendingRegistrations.put(
+                email,
+                new PendingRegistration(request, otp, Instant.now().plusSeconds(OTP_EXPIRY_SECONDS))
         );
 
-        // 🔥 ALWAYS USER (SECURE)
-        user.setRole("USER");
+        return "OTP sent to " + email;
+    }
+
+    public User verifyRegistrationOtp(String email, String otp) {
+
+        String normalizedEmail = normalizeEmail(email);
+        PendingRegistration pendingRegistration = pendingRegistrations.get(normalizedEmail);
+
+        if (pendingRegistration == null) {
+            throw new RuntimeException("No pending registration found for this email");
+        }
+
+        if (pendingRegistration.expiresAt().isBefore(Instant.now())) {
+            pendingRegistrations.remove(normalizedEmail);
+            throw new RuntimeException("OTP expired. Please register again.");
+        }
+
+        if (!pendingRegistration.otp().equals(otp)) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        Optional<User> existingUser =
+                userRepository.findByEmail(normalizedEmail);
+
+        if (existingUser.isPresent()) {
+            pendingRegistrations.remove(normalizedEmail);
+            throw new RuntimeException("Email already registered");
+        }
+
+        User user = createUser(pendingRegistration.request(), normalizedEmail);
+        pendingRegistrations.remove(normalizedEmail);
 
         return userRepository.save(user);
     }
 
-    // ✅ LOGIN
     public String loginUser(String email, String password) {
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() ->
                         new RuntimeException("User not found")
                 );
@@ -66,5 +106,37 @@ public class UserService {
                 user.getName(),
                 user.getRole()
         );
+    }
+
+    private User createUser(RegisterRequest request, String email) {
+
+        User user = new User();
+
+        user.setName(request.getName());
+        user.setEmail(email);
+        user.setPhone(request.getPhone());
+
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+
+        user.setRole("USER");
+
+        return user;
+    }
+
+    private String generateOtp() {
+        return String.valueOf(100000 + secureRandom.nextInt(900000));
+    }
+
+    private String normalizeEmail(String email) {
+        if (email == null) {
+            throw new RuntimeException("Email is required");
+        }
+
+        return email.trim().toLowerCase();
+    }
+
+    private record PendingRegistration(RegisterRequest request, String otp, Instant expiresAt) {
     }
 }

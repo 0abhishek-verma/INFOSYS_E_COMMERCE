@@ -117,69 +117,69 @@ function Dashboard() {
         subtitle="Browse products, compare prices, and build your cart."
       />
 
-      <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 lg:px-8">
-        <section className="mb-4 grid gap-4 lg:grid-cols-[1fr_320px]">
-          <div className="overflow-hidden rounded-sm bg-blue-700 text-white shadow-sm">
-            <div className="grid min-h-[220px] gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_260px] lg:items-center">
+      <main className="mx-auto max-w-7xl px-3 py-5 sm:px-6 lg:px-8">
+        <section className="mb-5 grid gap-4 lg:grid-cols-[1fr_320px]">
+          <div className="overflow-hidden bg-slate-950 text-white shadow-sm">
+            <div className="grid min-h-[240px] gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_260px] lg:items-center">
               <div>
-                <p className="text-sm font-bold uppercase tracking-wide text-yellow-300">
-                  Big saving days
+                <p className="text-sm font-black uppercase text-sky-300">
+                  Live marketplace
                 </p>
                 <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight sm:text-5xl">
-                  Fresh picks, sharper prices, faster checkout.
+                  Browse faster. Compare cleaner. Checkout sooner.
                 </h2>
-                <p className="mt-3 max-w-xl text-sm text-blue-100 sm:text-base">
+                <p className="mt-3 max-w-xl text-sm font-medium text-slate-300 sm:text-base">
                   Explore the live catalog and add your favourites to a cart that
                   stays ready while you compare products.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <a
                     href="#products"
-                    className="rounded-sm bg-yellow-400 px-5 py-3 text-sm font-black text-zinc-950 transition hover:bg-yellow-300"
+                    className="rounded-md bg-sky-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-sky-300"
                   >
                     Shop now
                   </a>
                   <Link
                     to="/cart"
-                    className="rounded-sm border border-blue-300 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-600"
+                    className="rounded-md border border-slate-600 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-800"
                   >
                     View cart ({itemCount})
                   </Link>
                 </div>
               </div>
 
-              <div className="hidden rounded bg-white p-5 text-zinc-950 shadow-sm lg:block">
-                <p className="text-sm font-bold text-blue-600">Today only</p>
+              <div className="hidden bg-white p-5 text-slate-950 shadow-sm lg:block">
+                <p className="text-sm font-black text-sky-700">Today only</p>
                 <p className="mt-2 text-4xl font-black">8% off</p>
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm font-medium text-slate-500">
                   Applied in cart summary on every order preview.
                 </p>
               </div>
             </div>
           </div>
 
-          <aside className="grid gap-3 rounded-sm bg-white p-4 shadow-sm ring-1 ring-zinc-200">
+          <aside className="grid gap-3 bg-white p-4 shadow-sm ring-1 ring-slate-200">
             <div>
-              <p className="text-xs font-bold uppercase text-zinc-500">Hello</p>
-              <h3 className="mt-1 text-xl font-bold text-zinc-950">
+              <p className="text-xs font-black uppercase text-slate-500">Hello</p>
+              <h3 className="mt-1 text-xl font-black text-slate-950">
                 {user?.name || "Customer"}
               </h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-sm bg-slate-100 p-3">
-                <p className="text-2xl font-black text-zinc-950">{products.length}</p>
-                <p className="text-xs font-semibold text-zinc-500">
+              <div className="bg-slate-100 p-3">
+                <p className="text-2xl font-black text-slate-950">{products.length}</p>
+                <p className="text-xs font-semibold text-slate-500">
                   {isFilteredView ? "Matches" : "Products"}
                 </p>
               </div>
-              <div className="rounded-sm bg-yellow-50 p-3">
-                <p className="text-2xl font-black text-zinc-950">{itemCount}</p>
-                <p className="text-xs font-semibold text-zinc-500">In cart</p>
+              <div className="bg-amber-50 p-3">
+                <p className="text-2xl font-black text-slate-950">{itemCount}</p>
+                <p className="text-xs font-semibold text-slate-500">In cart</p>
               </div>
             </div>
             <Link
               to="/cart"
-              className="rounded-sm bg-blue-600 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-blue-700"
+              className="rounded-md bg-slate-950 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-slate-800"
             >
               Go to cart
             </Link>
@@ -187,13 +187,13 @@ function Dashboard() {
         </section>
 
         {featuredCategories.length > 0 ? (
-          <section className="mb-4 grid grid-cols-2 gap-2 bg-white p-3 shadow-sm ring-1 ring-zinc-200 sm:grid-cols-4 lg:grid-cols-8">
+          <section className="mb-5 grid grid-cols-2 gap-2 bg-white p-3 shadow-sm ring-1 ring-slate-200 sm:grid-cols-4 lg:grid-cols-8">
             {featuredCategories.map((category) => (
               <button
                 type="button"
                 key={category}
                 onClick={() => setFilters((current) => ({ ...current, category }))}
-                className="rounded-sm px-3 py-3 text-sm font-bold text-zinc-700 transition hover:bg-blue-50 hover:text-blue-600"
+                className="rounded-md px-3 py-3 text-sm font-black text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
               >
                 {category}
               </button>
@@ -213,13 +213,13 @@ function Dashboard() {
         />
 
         {errorMessage ? (
-          <div className="mb-5 rounded-sm border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+          <div className="mb-5 border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
             {errorMessage}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="rounded-sm bg-white px-6 py-12 text-center text-sm font-semibold text-zinc-600 shadow-sm ring-1 ring-zinc-200">
+          <div className="bg-white px-6 py-12 text-center text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200">
             Loading products...
           </div>
         ) : products.length > 0 ? (
@@ -240,9 +240,9 @@ function Dashboard() {
             ))}
           </section>
         ) : (
-          <div className="rounded-sm border border-dashed border-zinc-300 bg-white px-6 py-12 text-center shadow-sm">
-            <h3 className="text-lg font-bold text-zinc-900">No products found</h3>
-            <p className="mt-2 text-sm text-zinc-600">
+          <div className="border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
+            <h3 className="text-lg font-black text-slate-950">No products found</h3>
+            <p className="mt-2 text-sm text-slate-600">
               {isFilteredView
                 ? "No products match the current search and filter settings."
                 : "The catalog is empty right now. Check back after an admin adds products."}

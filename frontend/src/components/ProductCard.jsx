@@ -12,6 +12,7 @@ function ProductCard({
   onViewDetails,
   product,
   ctaLabel = "View",
+  showAddButton = true,
 }) {
   const { addToCart } = useCart();
   const displayImage = image?.trim() ? image : buildFallbackImage(name);
@@ -34,7 +35,7 @@ function ProductCard({
   };
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded bg-white shadow-sm ring-1 ring-zinc-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <article className="group flex h-full flex-col overflow-hidden bg-white shadow-sm ring-1 ring-slate-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
       <button
         type="button"
         onClick={onViewDetails}
@@ -59,7 +60,7 @@ function ProductCard({
           <button
             type="button"
             onClick={onViewDetails}
-            className="mt-1 line-clamp-2 text-left text-base font-semibold leading-snug text-zinc-950 hover:text-blue-600"
+            className="mt-1 line-clamp-2 text-left text-base font-black leading-snug text-slate-950 hover:text-sky-700"
           >
             {name}
           </button>
@@ -72,36 +73,38 @@ function ProductCard({
           <span className="rounded bg-emerald-600 px-2 py-0.5 text-xs font-bold text-white">
             {rating}
           </span>
-          <span className="text-xs font-medium text-zinc-500">
+          <span className="text-xs font-semibold text-slate-500">
             {Number(stockQuantity) > 0 ? `${stockQuantity} in stock` : "Unavailable"}
           </span>
         </div>
 
         <div className="mt-auto">
           <div className="flex flex-wrap items-baseline gap-2">
-            <p className="text-xl font-bold text-zinc-950">Rs. {formatPrice(price)}</p>
-            <p className="text-sm text-zinc-400 line-through">Rs. {formatPrice(mrp)}</p>
+            <p className="text-xl font-black text-slate-950">Rs. {formatPrice(price)}</p>
+            <p className="text-sm text-slate-400 line-through">Rs. {formatPrice(mrp)}</p>
             <p className="text-sm font-semibold text-emerald-600">18% off</p>
           </div>
-          <p className="mt-1 text-xs font-medium text-zinc-500">Free delivery by tomorrow</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">Free delivery by tomorrow</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className={`grid gap-2 pt-1 ${showAddButton ? "grid-cols-2" : "grid-cols-1"}`}>
           <button
             type="button"
             onClick={onViewDetails}
-            className="rounded-sm border border-zinc-300 bg-white px-3 py-2 text-sm font-bold text-zinc-800 transition hover:border-blue-400 hover:text-blue-600"
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-black text-slate-800 transition hover:border-sky-400 hover:text-sky-700"
           >
             {ctaLabel}
           </button>
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            className="rounded-sm bg-yellow-400 px-3 py-2 text-sm font-bold text-zinc-950 transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-500"
-          >
-            Add
-          </button>
+          {showAddButton ? (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className="rounded-md bg-amber-400 px-3 py-2 text-sm font-black text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+            >
+              Add
+            </button>
+          ) : null}
         </div>
       </div>
     </article>
