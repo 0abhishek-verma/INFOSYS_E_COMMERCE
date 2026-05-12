@@ -33,6 +33,12 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @Column(nullable = false, length = 500)
+    private String deliveryAddress;
+
+    @Column(nullable = false, length = 60)
+    private String paymentMode;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -94,6 +100,22 @@ public class Order {
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    public String getPaymentMode() {
+        return paymentMode;
+    }
+
+    public void setPaymentMode(String paymentMode) {
+        this.paymentMode = paymentMode;
     }
 
     public LocalDateTime getCreatedAt() {

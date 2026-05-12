@@ -218,8 +218,8 @@ export function removeCartItem(cartItemId) {
   return api.delete(`/api/cart/${cartItemId}`);
 }
 
-export function placeOrder() {
-  return api.post("/api/orders/place");
+export function placeOrder(payload) {
+  return api.post("/api/orders/place", payload);
 }
 
 export function getMyOrders() {

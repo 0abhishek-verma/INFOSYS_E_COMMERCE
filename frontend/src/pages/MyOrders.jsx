@@ -141,6 +141,17 @@ function MyOrders() {
                   ))}
                 </div>
 
+                <div className="grid gap-3 border-t border-zinc-200 px-5 py-4 text-sm font-semibold text-zinc-700 md:grid-cols-[1fr_220px]">
+                  <div>
+                    <span className="font-black text-zinc-950">Delivery address: </span>
+                    {order.deliveryAddress || "Not provided"}
+                  </div>
+                  <div>
+                    <span className="font-black text-zinc-950">Payment: </span>
+                    {order.paymentMode || "Not provided"}
+                  </div>
+                </div>
+
                 <div className="grid gap-2 border-t border-zinc-200 bg-slate-50 px-5 py-4 text-sm font-semibold text-zinc-700 sm:grid-cols-4">
                   <span>Subtotal: Rs. {formatPrice(order.subtotal)}</span>
                   <span>Discount: Rs. {formatPrice(order.discount)}</span>

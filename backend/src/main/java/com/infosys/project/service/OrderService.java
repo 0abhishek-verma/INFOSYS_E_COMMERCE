@@ -27,7 +27,7 @@ public class OrderService {
     private ProductRepository productRepository;
 
     @Transactional
-    public Order placeOrder(String userEmail) {
+    public Order placeOrder(String userEmail, String deliveryAddress, String paymentMode) {
         List<CartItem> cartItems = cartItemRepository.findByUserEmail(userEmail);
 
         if (cartItems.isEmpty()) {
@@ -36,6 +36,8 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserEmail(userEmail);
+        order.setDeliveryAddress(deliveryAddress.trim());
+        order.setPaymentMode(paymentMode.trim());
 
         BigDecimal subtotal = BigDecimal.ZERO;
 

@@ -1,8 +1,10 @@
 package com.infosys.project.controller;
 
+import com.infosys.project.dto.PlaceOrderRequest;
 import com.infosys.project.model.Order;
 import com.infosys.project.security.JwtUtil;
 import com.infosys.project.service.OrderService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,13 @@ public class OrderController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/place")
-    public Order placeOrder(@RequestHeader("Authorization") String token) {
-        return orderService.placeOrder(extractEmail(token));
+    public Order placeOrder(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody PlaceOrderRequest request) {
+        return orderService.placeOrder(
+                extractEmail(token),
+                request.getDeliveryAddress(),
+                request.getPaymentMode());
     }
 
     @GetMapping("/my")

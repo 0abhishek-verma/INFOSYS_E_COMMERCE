@@ -5,6 +5,29 @@ import { useCart } from "../context/useCart";
 import { getErrorMessage, getStoredUser, placeOrder } from "../services/api";
 import { buildFallbackImage, formatPrice } from "../utils/catalog";
 
+const paymentOptions = [
+  {
+    value: "Cash on Delivery",
+    label: "Cash on Delivery",
+    helper: "Pay when the order reaches your address.",
+  },
+  {
+    value: "UPI",
+    label: "UPI",
+    helper: "Use any UPI app during delivery confirmation.",
+  },
+  {
+    value: "Credit or Debit Card",
+    label: "Credit or Debit Card",
+    helper: "Card payment collected securely at delivery.",
+  },
+  {
+    value: "Net Banking",
+    label: "Net Banking",
+    helper: "Complete payment through your bank before dispatch.",
+  },
+];
+
 function PlaceOrder() {
   const navigate = useNavigate();
   const user = getStoredUser();
@@ -21,13 +44,40 @@ function PlaceOrder() {
   } = useCart();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [paymentMode, setPaymentMode] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const validateOrderDetails = () => {
+    const nextErrors = {};
+
+    if (!deliveryAddress.trim()) {
+      nextErrors.deliveryAddress = "Delivery address is required.";
+    } else if (deliveryAddress.trim().length < 10) {
+      nextErrors.deliveryAddress = "Enter a complete delivery address.";
+    }
+
+    if (!paymentMode) {
+      nextErrors.paymentMode = "Select a payment mode.";
+    }
+
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
 
   const handlePlaceOrder = async () => {
+    if (!validateOrderDetails()) {
+      return;
+    }
+
     setIsPlacingOrder(true);
     setErrorMessage("");
 
     try {
-      const response = await placeOrder();
+      const response = await placeOrder({
+        deliveryAddress: deliveryAddress.trim(),
+        paymentMode,
+      });
       await refreshCart();
       navigate("/orders", {
         replace: true,
@@ -77,9 +127,82 @@ function PlaceOrder() {
                 Standard
               </span>
             </div>
-            <p className="mt-4 text-sm font-medium text-zinc-600">
-              Delivery by tomorrow. Payment mode is cash on delivery for this order preview.
-            </p>
+            <div className="mt-4">
+              <label
+                htmlFor="deliveryAddress"
+                className="text-sm font-black text-zinc-800"
+              >
+                Delivery address
+              </label>
+              <textarea
+                id="deliveryAddress"
+                name="deliveryAddress"
+                value={deliveryAddress}
+                onChange={(event) => {
+                  setDeliveryAddress(event.target.value);
+                  setFieldErrors((currentErrors) => ({
+                    ...currentErrors,
+                    deliveryAddress: "",
+                  }));
+                }}
+                rows="4"
+                required
+                placeholder="House number, street, area, city, state, pincode"
+                className="mt-2 w-full resize-none rounded-md border border-zinc-300 px-3 py-3 text-sm font-semibold text-zinc-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+              />
+              {fieldErrors.deliveryAddress ? (
+                <p className="mt-2 text-sm font-semibold text-rose-600">
+                  {fieldErrors.deliveryAddress}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-5">
+              <h3 className="text-sm font-black text-zinc-800">Mode of payment</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {paymentOptions.map((option) => (
+                  <label
+                    key={option.value}
+                    className={`cursor-pointer rounded-md border px-4 py-3 transition ${
+                      paymentMode === option.value
+                        ? "border-sky-600 bg-sky-50 ring-2 ring-sky-100"
+                        : "border-zinc-200 bg-white hover:border-sky-300"
+                    }`}
+                  >
+                    <span className="flex items-start gap-3">
+                      <input
+                        type="radio"
+                        name="paymentMode"
+                        value={option.value}
+                        checked={paymentMode === option.value}
+                        onChange={(event) => {
+                          setPaymentMode(event.target.value);
+                          setFieldErrors((currentErrors) => ({
+                            ...currentErrors,
+                            paymentMode: "",
+                          }));
+                        }}
+                        required
+                        className="mt-1"
+                      />
+                      <span>
+                        <span className="block text-sm font-black text-zinc-950">
+                          {option.label}
+                        </span>
+                        <span className="mt-1 block text-xs font-semibold text-zinc-500">
+                          {option.helper}
+                        </span>
+                      </span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {fieldErrors.paymentMode ? (
+                <p className="mt-2 text-sm font-semibold text-rose-600">
+                  {fieldErrors.paymentMode}
+                </p>
+              ) : null}
+            </div>
           </div>
 
           {items.length > 0 ? (
